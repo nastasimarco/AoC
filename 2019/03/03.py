@@ -94,19 +94,24 @@ def path_calc(path_list):
             y_pos[i+1] = y_pos[i] - int(path_list[i][1:])
         else: print("C'è qualquadra che non cosa!")
         # print(x_pos, y_pos, '\n')
-    return x_pos, y_pos
+    return np.array([x_pos, y_pos])
 
-def segment(pos_array):
-    # pos_array[]
-    pass
 
-# def segment_cross(pos_list_1, pos_list_2):
-#     for i in range(0, len(pos_list_1[0]), 2):
-#         for j in range0, len(0, pos_list_2[0]), 2):
-#             if 
-#     return cross_list
+# def segment_cross(segment_1, segment_2):
+#     if (segment[] or )
+#     pass
+#     return cross
+
+# def segment(pos_array):
+#     # pos_array[]
+#     # definiamo il segmento
+#     if :
+#     pass
 
 pos_1 = path_calc(path_1)
 pos_2 = path_calc(path_2)
+
+segment_1 = pos_1[:, :2]
+segment_2 = pos_2[:, :2]
 
 plt.plot(pos_1[0], pos_1[1], '.-', pos_2[0], pos_2[1], '.-')
