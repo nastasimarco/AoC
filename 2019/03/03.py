@@ -85,6 +85,36 @@ path_1, path_2 = data.split('\n')[0:2]
 path_1 = path_1.split(',')
 path_2 = path_2.split(',')
 
+def path_points(path_list):
+    # x_points = [0]
+    # y_points = [0]
+    points = [(0, 0)]
+    for i in range(len(path_list)):
+        for j in range(int(path_list[i][1:])):
+            if path_list[i].startswith('R'):
+                points += [(points[-1][0] + 1,
+                           points[-1][1])]
+                # x_points += [x_points[-1] + (j + 1)]
+                # y_points += [y_points[-1]]
+            elif path_list[i].startswith('L'):
+                points += [(points[-1][0] - 1,
+                           points[-1][1])]
+                # x_points += [x_points[-1] - (j + 1)]
+                # y_points += [y_points[-1]]
+            elif path_list[i].startswith('U'):
+                points += [(points[-1][0],
+                           points[-1][1] + 1)]
+                # x_points += [x_points[-1]]
+                # y_points += [y_points[-1] + (j + 1)]
+            elif path_list[i].startswith('D'):
+                points += [(points[-1][0],
+                           points[-1][1] - 1)]
+                # x_points += [x_points[-1]]
+                # y_points += [y_points[-1] - (j + 1)]
+            else: print("C'è qualquadra che non cosa!")
+    # return np.array([x_points, y_points])
+    return points
+
 def path_calc(path_list):
     x_pos = np.zeros((len(path_list) + 1,), dtype=int)
     y_pos = np.zeros((len(path_list) + 1,), dtype=int)
@@ -156,6 +186,8 @@ def segment_cross(segment1, segment2):
 def cross_array(pos1, pos2):
     cross_x = []
     cross_y = []
+    cross_index1 = []
+    cross_index2 = []
     for i in range(len(pos1[0]) - 1):
         for j in range(len(pos2[0]) - 1):
             cross = segment_cross(pos1[:, i:i+2], pos2[:, j:j+2])
@@ -164,12 +196,15 @@ def cross_array(pos1, pos2):
             else:
                 cross_x += [cross[0]]
                 cross_y += [cross[1]]
-    return np.array([cross_x, cross_y])
+                cross_index1 += [[i, i+1]]
+                cross_index2 += [[j, j+1]]
+    return np.array([cross_x, cross_y]), cross_index1, cross_index2
+
 
 pos_1 = path_calc(path_1)
 pos_2 = path_calc(path_2)
 
-cross = cross_array(pos_1, pos_2)
+cross, idx_1, idx_2 = cross_array(pos_1, pos_2)
 cross_distances = np.sum(np.abs(cross), 0)
 closest_cross = min(cross_distances[cross_distances > 0])
 
@@ -177,5 +212,32 @@ print('Part I')
 print(f'The Manhattan distance from the central port to the closest\
 intersection is: {closest_cross}')
 
-plt.plot(pos_1[0], pos_1[1], '.-', pos_2[0], pos_2[1], '.-')
-plt.plot(cross[0], cross[1], 'o')
+plt.figure()
+plt.plot(pos_1[0], pos_1[1], '--', pos_2[0], pos_2[1], '--')
+for i in range(len(idx_1)):
+    plt.plot(pos_1[:, idx_1[i]][0], pos_1[:, idx_1[i]][1], 'b.-')
+for j in range(len(idx_2)):
+    plt.plot(pos_2[:, idx_2[j]][0], pos_2[:, idx_2[j]][1], 'r.-')
+plt.plot(cross[0], cross[1], 'go')
+
+# new method that uses sets to find intersections
+points_1 = path_points(path_1)
+points_2 = path_points(path_2)
+crosses = list(set(points_1) & set(points_2))
+distances = np.sum(np.abs(np.array(crosses)), 1)
+closest = min(distances[distances > 0])
+
+steps = np.array([points_1.index(cr) + points_2.index(cr) for cr in crosses])
+fastest = min(steps[steps > 0])
+
+print('Part I')
+print(f'The Manhattan distance from the central port to the closest\
+intersection is: {closest}')
+
+print('Part II')
+print(f'The fewest combined steps the wires must take to reach\
+an intersection is: {fastest}')
+
+
+plt.figure()
+plt.plot(*zip(*points_1), *zip(*points_2), marker=',')
