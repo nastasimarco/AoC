@@ -51,6 +51,51 @@ The total number of direct and indirect orbits in this example is 42.
 
 What is the total number of direct and indirect orbits in your map data?
 
+--- Part Two ---
+Now, you just need to figure out how many orbital transfers you (YOU) need to take to get to Santa (SAN).
+
+You start at the object YOU are orbiting; your destination is the object SAN is orbiting. An orbital transfer lets you move from any object to an object orbiting or orbited by that object.
+
+For example, suppose you have the following map:
+
+COM)B
+B)C
+C)D
+D)E
+E)F
+B)G
+G)H
+D)I
+E)J
+J)K
+K)L
+K)YOU
+I)SAN
+Visually, the above map of orbits looks like this:
+
+                          YOU
+                         /
+        G - H       J - K - L
+       /           /
+COM - B - C - D - E - F
+               \
+                I - SAN
+In this example, YOU are in orbit around K, and SAN is in orbit around I. To move from K to I, a minimum of 4 orbital transfers are required:
+
+K to J
+J to E
+E to D
+D to I
+Afterward, the map of orbits looks like this:
+
+        G - H       J - K - L
+       /           /
+COM - B - C - D - E - F
+               \
+                I - SAN
+                 \
+                  YOU
+What is the minimum number of orbital transfers required to move from the object YOU are orbiting to the object SAN is orbiting? (Between the objects they are orbiting - not between YOU and SAN.)
 """
 # Part I
 filename = 'input.txt'
@@ -60,6 +105,7 @@ with open(filename, 'r') as file:
 
 # custom input
 # map_data = 'COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L'
+map_data = 'COM)B\nB)C\nC)D\nD)E\nE)F\nB)G\nG)H\nD)I\nE)J\nJ)K\nK)L\nK)YOU\nI)SAN'
 
 map_data = map_data.split()
 map_dict = {}
@@ -71,15 +117,28 @@ for string in map_data:
     else:
         map_dict[current_key] = [current_value]
 
-def path_count(map_dict, object, count):
-    for i in range(len(map_dict[object])):
-        if map_dict[object][i] in map_dict.keys():
-            count = path_count(map_dict, map_dict[object][i], 1 + count)
+def path_count(map_dict, start, count):
+    for i in range(len(map_dict[start])):
+        if map_dict[start][i] in map_dict.keys():
+            count = path_count(map_dict, map_dict[start][i], 1 + count)
         else:
             count += 1
     return count
+
+def object_find(map_dict, start, object_):
+    for i in range(len(map_dict[start])):
+        # if object_ in map_dict[start]:
+        if object_ == map_dict[start][i]:
+            return start
+        # elif :
+        #     return
+        elif map_dict[start][i] in map_dict.keys():
+            return object_find(map_dict, map_dict[start][i], object_)
+        else:
+            pass
 
 orbits_count = sum([path_count(map_dict, key_, 0) for key_ in map_dict.keys()])
 print('Part I')
 print('The total number of direct and indirect orbits in this map data is:',
       f'{orbits_count}')
+print('Part II')
